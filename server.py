@@ -50,9 +50,10 @@ def image_search (query):
 def preprocessing_data(text):
     trash_words = ['hello', 'hi', 'there', 'here', 'my', 'mine', 'your', 'yours', 'do', 'did']
     lmtzr = WordNetLemmatizer()
+    detectText = detect(text)
     lang = "en"
 
-    if (detect(text) == 'uk' or detect(text) == 'ru'):
+    if (detectText == 'uk' or detectText == 'ru'):
         lang = "rus"
 
     # cleaning data
