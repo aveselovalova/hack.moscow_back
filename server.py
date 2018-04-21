@@ -122,7 +122,7 @@ def handleMessage(msg):
 @socketio.on('getImage')
 def message(msg):
     if len(msg) > 0:
-        print("I GET A MESSAGE: " +  msg)
+        print(msg)
         imgUrls = get_text(buffer, msg)
         emit('imageResponse', {'data': imgUrls[0]})
     else:
