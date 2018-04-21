@@ -6,6 +6,7 @@ import time
 import random
 from googleapiclient.discovery import build
 from flask import Flask, render_template
+from langdetect import detect
 from flask_socketio import SocketIO, emit
 
 
@@ -49,20 +50,28 @@ def image_search (query):
 def preprocessing_data(text):
     trash_words = ['hello', 'hi', 'there', 'here', 'my', 'mine', 'your', 'yours', 'do', 'did']
     lmtzr = WordNetLemmatizer()
-    
+    lang = "en"
+
+    if (detect(text) == 'uk' or detect(text) == 'ru'):
+        lang = "rus"
+
     # cleaning data
     text = text.replace(',', '').replace('.', '').replace('?', '').replace('!', '').replace(')', '').replace('(', '').split()
     message = [word for word in text if word.lower() not in trash_words]
     message = [lmtzr.lemmatize(word) for word in message]
-    
+
     # get only nouns or noun phrases
-    parsed_message = [word[0] for word in pos_tag(message) if word[1] == 'NN' or word[1] == 'NNP']
+    print (lang)
+    if (lang == "en"):
+        parsed_message = [word[0] for word in pos_tag(message, lang = lang) if word[1] == 'NN' or word[1] == 'NNP']
+    else:
+        parsed_message = [word[0] for word in pos_tag(message, lang = lang) if word[1] == 'S']
 
     answer = []
     for word in parsed_message:
         answer.append(time_word(word))
-        
-    # remove duplicates    
+
+    # remove duplicates
     answer = list(set(answer))
 
     return answer
