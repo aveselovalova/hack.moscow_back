@@ -36,7 +36,7 @@ def update_buffer(buffer, new_words):
 def get_text(buffer, text):
     key_words = preprocessing_data(text)
     urls = []
-    new_words = [word for word in words if word not in buffer]
+    new_words = [word for word in key_words if word not in buffer]
     update_buffer(buffer, new_words)
     for word in new_words:
         urls.append(image_search(word))
