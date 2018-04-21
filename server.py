@@ -50,45 +50,44 @@ def image_search (query):
 def preprocessing_data(text):
     trash_words = ['hello', 'hi', 'there', 'here', 'my', 'mine', 'your', 'yours', 'do', 'did']
     lmtzr = WordNetLemmatizer()
-    detectText = detect(text)
     lang = "en"
 
-    if (detectText == 'uk' or detectText == 'ru'):
+    if (detect(text) == 'uk' or detect(text) == 'ru'):
         lang = "rus"
-
+    
     # cleaning data
     text = text.replace(',', '').replace('.', '').replace('?', '').replace('!', '').replace(')', '').replace('(', '').split()
     message = [word for word in text if word.lower() not in trash_words]
     message = [lmtzr.lemmatize(word) for word in message]
-
+    
     # get only nouns or noun phrases
     print (lang)
     if (lang == "en"):
         parsed_message = [word[0] for word in pos_tag(message, lang = lang) if word[1] == 'NN' or word[1] == 'NNP']
     else:
-        parsed_message = [word[0] for word in pos_tag(message, lang = lang) if word[1] == 'S']
-
+        parsed_message = [word[0] for word in pos_tag(message, lang = lang) if word[1] == 'S' or word[1] == 'ADV']
     answer = []
     for word in parsed_message:
         answer.append(time_word(word))
-
-    # remove duplicates
+        
+    # remove duplicates    
     answer = list(set(answer))
 
     return answer
 
 def time_word(word):
-    time_words = ['yesterday', 'today', 'tomorrow']
+    time_words = ['yesterday', 'today', 'tomorrow', 'сегодня', 'завтра', 'вчера']
     months = {1: 'january', 2: 'february', 3: 'march', 4: 'april', 5: 'may', 6: 'june', 7: 'july', 8: 'august', \
               9: 'september', 10: 'october', 11: 'november', 12: 'december'}
     
     word = word.lower()
+    print(word)
     if word not in time_words:
         return word
     else: 
-        if word == 'today':
+        if word == 'today' or word == 'сегодня':
             dt = datetime.datetime.now()
-        elif word == 'tomorrow':
+        elif word == 'tomorrow' or word == 'завтра':
             dt = datetime.date.today() + datetime.timedelta(days=1)
         else:
             dt = datetime.date.today() - datetime.timedelta(days=1)
@@ -104,9 +103,12 @@ def handleMessage(msg):
     
 @socketio.on('getImage')
 def message(msg):
-    print("I GET A MESSAGE: " +  msg)
-    imgUrls = get_text(msg)
-    emit('imageResponse', {'data': imgUrls[0]})
+    if len(msg) > 0:
+        print("I GET A MESSAGE: " +  msg)
+        imgUrls = get_text(msg)
+        emit('imageResponse', {'data': imgUrls[0]})
+    else:
+        return
 
 if __name__ == '__main__':
     socketio.run(app)
