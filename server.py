@@ -25,11 +25,20 @@ nltk.download('averaged_perceptron_tagger_ru')
 nltk.download('averaged_perceptron_tagger')
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
+buffer = []
 
-def get_text(text):
+def update_buffer(buffer, new_words):
+    buffer_size = 7
+    buffer.extend(new_words)
+    buffer = buffer[len(buffer) - buffer_size:]
+    return buffer
+
+def get_text(buffer, text):
     key_words = preprocessing_data(text)
     urls = []
-    for word in key_words:
+    new_words = [word for word in words if word not in buffer]
+    update_buffer(buffer, new_words)
+    for word in new_words:
         urls.append(image_search(word))
     return urls
 
@@ -114,7 +123,7 @@ def handleMessage(msg):
 def message(msg):
     if len(msg) > 0:
         print("I GET A MESSAGE: " +  msg)
-        imgUrls = get_text(msg)
+        imgUrls = get_text(buffer, msg)
         emit('imageResponse', {'data': imgUrls[0]})
     else:
         return
