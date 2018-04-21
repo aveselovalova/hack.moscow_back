@@ -4,15 +4,24 @@ from nltk.stem.wordnet import WordNetLemmatizer
 import datetime
 import time
 import random
+import ssl
 from googleapiclient.discovery import build
 from flask import Flask, render_template
 from langdetect import detect
 from flask_socketio import SocketIO, emit
 
 
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+
 app = Flask(__name__)
 nltk.download('tagsets')
 nltk.download('wordnet')
+nltk.download('averaged_perceptron_tagger_ru')
 nltk.download('averaged_perceptron_tagger')
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
