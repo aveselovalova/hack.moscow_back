@@ -124,9 +124,11 @@ def message(msg):
     if len(msg) > 0:
         print("I GET A MESSAGE: " +  msg)
         imgUrls = get_text(buffer, msg)
-        emit('imageResponse', {'data': imgUrls[0]})
+        if len(imgUrls) > 0:
+            emit('imageResponse', {'data': imgUrls[0]})
+        return ""
     else:
-        return
+        return ""
 
 if __name__ == '__main__':
     socketio.run(app)
