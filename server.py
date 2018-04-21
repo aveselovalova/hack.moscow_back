@@ -5,6 +5,7 @@ import datetime
 import time
 import random
 import ssl
+from textblob import TextBlob
 from googleapiclient.discovery import build
 from flask import Flask, render_template
 from langdetect import detect
@@ -30,23 +31,26 @@ buffer = []
 def update_buffer(buffer, new_words):
     buffer_size = 7
     buffer.extend(new_words)
-    buffer = buffer[len(buffer) - buffer_size:]
+    if len(buffer) > buffer_size:
+        buffer = buffer[len(buffer) - buffer_size:]
     return buffer
 
 def get_text(buffer, text):
+    start_time = time.time()
+
     key_words = preprocessing_data(text)
     urls = []
     new_words = [word for word in key_words if word not in buffer]
     update_buffer(buffer, new_words)
     for word in new_words:
         urls.append(image_search(word))
+    print("--- %s seconds ---" % (time.time() - start_time))
     return urls
 
 def image_search (query):
     print("search with query:" + query)
     cx = "008972884188395970079:loopwvxlbyi"
     key = "AIzaSyCAfFiWIqxOdVQkOsqm3TDuRpukuFpA1zc"
-    start_time = time.time()
     
     service = build("customsearch", "v1",
                developerKey=key)
@@ -63,7 +67,6 @@ def image_search (query):
     
     url = res['items'][random.randint(0, 9)]['link']
     print(url)
-    print("--- %s seconds ---" % (time.time() - start_time))
     return url
 
 def preprocessing_data(text):
@@ -126,6 +129,7 @@ def handleMessage(msg):
     
 @socketio.on('getImage')
 def message(msg):
+    print(msg)
     if len(msg) > 0:
         imgUrls = get_text(buffer, msg)
         if len(imgUrls) > 0:
