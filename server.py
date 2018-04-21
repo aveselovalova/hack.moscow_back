@@ -43,6 +43,7 @@ def get_text(buffer, text):
     return urls
 
 def image_search (query):
+    print("search with query:" + query)
     cx = "008972884188395970079:loopwvxlbyi"
     key = "AIzaSyCAfFiWIqxOdVQkOsqm3TDuRpukuFpA1zc"
     start_time = time.time()
@@ -79,7 +80,6 @@ def preprocessing_data(text):
     message = [lmtzr.lemmatize(word) for word in message]
     
     # get only nouns or noun phrases
-    print (lang)
     if (lang == "en"):
         parsed_message = [word[0] for word in pos_tag(message, lang = lang) if word[1] == 'NN' or word[1] == 'NNP']
     else:
@@ -99,7 +99,6 @@ def time_word(word):
               9: 'september', 10: 'october', 11: 'november', 12: 'december'}
     
     word = word.lower()
-    print(word)
     if word not in time_words:
         return word
     else: 
@@ -122,7 +121,6 @@ def handleMessage(msg):
 @socketio.on('getImage')
 def message(msg):
     if len(msg) > 0:
-        print(msg)
         imgUrls = get_text(buffer, msg)
         if len(imgUrls) > 0:
             emit('imageResponse', {'data': imgUrls[0]})
