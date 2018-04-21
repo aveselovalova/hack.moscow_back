@@ -69,17 +69,14 @@ def image_search (query):
 def preprocessing_data(text):
     trash_words = ['hello', 'hi', 'there', 'here', 'my', 'mine', 'your', 'yours', 'do', 'did']
     lmtzr = WordNetLemmatizer()
-    lang = "en"
-
-    if (detect(text) == 'uk' or detect(text) == 'ru'):
-        lang = "rus"
+    lang = detect_lang(text)
     
     # cleaning data
     text = text.replace(',', '').replace('.', '').replace('?', '').replace('!', '').replace(')', '').replace('(', '').split()
     message = [word for word in text if word.lower() not in trash_words]
     message = [lmtzr.lemmatize(word) for word in message]
     
-    # get only nouns or noun phrases
+    # get only nouns or noun phrases)
     if (lang == "en"):
         parsed_message = [word[0] for word in pos_tag(message, lang = lang) if word[1] == 'NN' or word[1] == 'NNP']
     else:
@@ -92,6 +89,15 @@ def preprocessing_data(text):
     answer = list(set(answer))
 
     return answer
+
+def detect_lang(text):
+    b = TextBlob(text)
+    if len(text) < 3:
+        return "rus"
+    elif b.detect_language() == 'ru':
+        return "rus"
+    else:
+        return "en"
 
 def time_word(word):
     time_words = ['yesterday', 'today', 'tomorrow', 'сегодня', 'завтра', 'вчера']
